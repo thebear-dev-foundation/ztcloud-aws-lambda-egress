@@ -13,14 +13,18 @@ ZIP="$BUILD_DIR/lambda.zip"
 rm -rf "$BUILD_DIR"
 mkdir -p "$PKG_DIR"
 
-echo "==> Installing dependencies for Linux Lambda runtime"
-pip install \
+PIP="${PIP:-pip3}"
+if ! command -v "$PIP" >/dev/null 2>&1; then
+  PIP="python3 -m pip"
+fi
+
+echo "==> Installing dependencies for Linux Lambda runtime (using: $PIP)"
+$PIP install \
   --platform manylinux2014_x86_64 \
   --implementation cp \
   --python-version 3.12 \
   --only-binary=:all: \
   --target "$PKG_DIR" \
-  --require-hashes=false \
   -r "$LAMBDA_DIR/requirements.txt"
 
 echo "==> Building zip"

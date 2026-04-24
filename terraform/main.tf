@@ -31,7 +31,7 @@ resource "aws_route_table_association" "lambda_egress" {
 # ========== Security Group — egress restricted to SFTP destination ==========
 resource "aws_security_group" "lambda_egress" {
   name        = "lambda-${var.egress_profile_tag}-egress"
-  description = "Lambda SFTP egress — allows outbound ${var.sftp_port}/tcp to ${var.sftp_host} only"
+  description = "Lambda ${var.egress_profile_tag} egress SG (narrowed by route+Zscaler policy)"
   vpc_id      = var.vpc_id
 
   tags = {
@@ -47,7 +47,7 @@ resource "aws_security_group_rule" "egress_sftp" {
   to_port           = var.sftp_port
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  description       = "SFTP egress to ${var.sftp_host}:${var.sftp_port} — narrowed by route+Zscaler policy"
+  description       = "SFTP egress (narrowed by route + Zscaler policy)"
 }
 
 # DNS resolution for Lambda (the default VPC DNS resolver lives at VPC+2, reachable from any subnet)
@@ -58,7 +58,7 @@ resource "aws_security_group_rule" "egress_dns" {
   to_port           = 53
   protocol          = "udp"
   cidr_blocks       = ["0.0.0.0/0"]
-  description       = "DNS — required to resolve sftp_host when FQDN is used"
+  description       = "DNS for sftp_host FQDN resolution"
 }
 
 # ========== Lambda IAM role — least privilege ==========
